@@ -1,0 +1,12 @@
+c some graph example (10 vertices, 10 edges)
+p edge 10 10
+e 1 2
+e 1 5
+e 2 3
+e 2 7
+e 3 8
+e 4 9
+e 5 10
+e 6 9
+e 7 9
+e 8 10

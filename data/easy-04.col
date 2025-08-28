@@ -1,0 +1,8 @@
+c Complete graph K4 (4 vertices, 6 edges)
+p edge 4 6
+e 1 2
+e 1 3
+e 1 4
+e 2 3
+e 2 4
+e 3 4

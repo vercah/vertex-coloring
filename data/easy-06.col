@@ -1,0 +1,13 @@
+c Small sparse random graph (12 vertices, 11 edges)
+p edge 12 11
+e 1 2
+e 2 5
+e 3 4
+e 4 6
+e 5 7
+e 6 8
+e 7 9
+e 8 10
+e 9 11
+e 10 12
+e 3 11
