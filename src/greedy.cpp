@@ -130,10 +130,8 @@ int main(int argc, char** argv) {
 
     int k = 0;
     for (int c: color) {k = max(k, c+1);}
-    cout << k << "\n"; // number of colors used
-    for (int i=0; i<n; ++i) { cout << color[i] << (i+1==n ? '\n':' ');}
+    cout << "Used " << k << " colors" << "\n"; // number of colors used
 
-    // DOT
     write_dot(dot_path, adj, color);
     return 0;
 }
