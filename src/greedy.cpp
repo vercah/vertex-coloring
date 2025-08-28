@@ -75,6 +75,38 @@ vector<int> desc_degree_order(const vector<vector<int>>& adj) {
     return order;
 }
 
+// ---- DOT writer ------
+void write_dot(const string& path, const vector<vector<int>>& adj, const vector<int>& color) {
+    static const vector<string> pal = {
+        "red","green","blue","gold","cyan","magenta","orange","purple","brown","pink",
+        "gray","turquoise","violet","chartreuse","salmon","tan","sienna","khaki","aquamarine","orchid"
+    };
+    int n = (int)adj.size();
+    ofstream out(path); //open out file streat
+    if (!out) {cerr << "Cannot open DOT output path.\n"; return; }
+    out << "graph G {\n";
+    out << "  layout=neato;\n  overlap=false;\n  splines=true;\n";
+    out << "  node [shape=circle, style=filled, fontname=Inter];\n";
+
+    // convert vertices indices back to 1-based like in dimacs
+    for (int v=0; v<n; ++v) {
+        int c = color[v];
+        string fill = pal[c % pal.size()];
+        out << "  " << (v+1) << " [label=\"" << (v+1) << "\", fillcolor=\"" << fill << "\", tooltip=\"v"
+            << (v+1) << " color " << c << "\"];\n";
+    }
+    // each undirected edge once
+    for (int u=0; u<n; ++u) {
+        for (int v: adj[u]) {
+            if (u < v) {
+                out << "  " << (u+1) << " -- " << (v+1) << ";\n";
+            } 
+        }
+    }
+    out << "}\n";
+    cerr << "DOT written to: " << path << "\n";
+}
+
 // ---- Main ------
 // uses the welsh-powell algo
 int main(int argc, char** argv) {
@@ -101,4 +133,7 @@ int main(int argc, char** argv) {
     cout << k << "\n"; // number of colors used
     for (int i=0; i<n; ++i) { cout << color[i] << (i+1==n ? '\n':' ');}
 
+    // DOT
+    write_dot(dot_path, adj, color);
+    return 0;
 }
