@@ -1,4 +1,10 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <numeric>   // for iota
+#include <fstream>   // for writing DOT
+#include <unordered_set>
 using namespace std;
 
 // ---- DIMACS reader ----
@@ -125,7 +131,6 @@ int main(int argc, char** argv) {
     if (!read_dimacs(n, m, adj)) { cerr << "Failed to read DIMACS from input file.\n"; return 1; }
 
     vector<int> order = desc_degree_order(adj);
-
     vector<int> color = greedy_color(adj, order);
 
     int k = 0;
