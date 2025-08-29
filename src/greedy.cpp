@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
         string a = argv[i];
         if (a == "--dot" && i+1 < argc) { dot_path = argv[++i]; } //user dot filename
         else if (a == "--help" || a == "-h") {
-            cerr << "Usage: color [--dot out.dot] < input.col\n";
+            cerr << "Usage: greedy [--dot out.dot] < input.col\n";
             return 0;
         }
     }
