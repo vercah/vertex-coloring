@@ -2,7 +2,7 @@
 make
 
 # time only
-BIN=build/greedy INPUT=data/DSJC125.1.col ARGS="--dot data/out.dot" CORES=3 RUNS=5 ./measure.sh
+BIN=build/greedy INPUT=data/latin_square_10.col ARGS="--dot data/out.dot" CORES=3 RUNS=10 ./measure.sh
 
 # Add gprof once, same args, pinned
 #make gprof-build
