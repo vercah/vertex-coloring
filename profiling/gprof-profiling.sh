@@ -4,7 +4,7 @@ set -euo pipefail
 # Run this from the profiling directory
 PROFILE_DIR="."
 BUILD_DIR="$PROFILE_DIR/../build"
-SRC="$PROFILE_DIR/../src/greedy.cpp"
+SRC="$PROFILE_DIR/../src/optim-greedy.cpp"
 BIN="$BUILD_DIR/greedy"
 INPUT="$PROFILE_DIR/../data/latin_square_10.col"
 OUT_DOT="$PROFILE_DIR/../data/out.dot"
