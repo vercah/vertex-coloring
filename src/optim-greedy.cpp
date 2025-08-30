@@ -24,6 +24,7 @@ bool read_dimacs(int& n, int& m, vector<vector<int>>& adj) {
             cin >> kind >> n >> m;
             if (n <= 0) return false;
             adj.assign(n, {}); //reset adjacency table
+            edges.reserve(m); //prevents allocations afterwards
         } else if (t == "e") {
             int a, b;
             cin >> a >> b;
@@ -39,18 +40,26 @@ bool read_dimacs(int& n, int& m, vector<vector<int>>& adj) {
     if (n <= 0) return false;
 
     // building adjacency, deduplication of multiedges
-    vector<unordered_set<int>> tmp(n); //store only unique integers
-    for (unsigned int i = 0; i < edges.size(); ++i) {
-        int u = edges[i].first;
-        int v = edges[i].second;
-        tmp[u].insert(v);
-        tmp[v].insert(u);
-    }
+    vector<int> deg(n, 0);
+    for (auto &e : edges) { deg[e.first]++; deg[e.second]++; }
+
     adj.assign(n, {});
-    for (int i=0;i<n;++i) {
-        adj[i] = vector<int>(tmp[i].begin(), tmp[i].end());
-    } 
+    for (int i = 0; i < n; ++i) adj[i].reserve(deg[i]);
+
+    for (auto &e : edges) {
+        adj[e.first].push_back(e.second);
+        adj[e.second].push_back(e.first);
+    }
+    for (int i = 0; i < n; ++i) {
+        auto &nbr = adj[i];
+        sort(nbr.begin(), nbr.end()); //sort neighbors so duplicates become adjacent
+        nbr.erase(unique(nbr.begin(), nbr.end()), nbr.end()); // drop multiedges, unique moves duplicates to start
+    }
     return true;
+
+    // after reading all edges
+
+
 }
 
 // ---- Greedy coloring ------
@@ -72,11 +81,12 @@ vector<int> greedy_color(const vector<vector<int>>& adj, const vector<int>& orde
 vector<int> desc_degree_order(const vector<vector<int>>& adj) {
     int n = (int)adj.size();
     vector<int> order(n);
+    vector<int> degree(n);
+    for (int v = 0; v < n; ++v) degree[v] = (int)adj[v].size(); //make degree vector to avoid calling .size() in comparator
     iota(order.begin(), order.end(), 0);  // fill with 0..n-1
-    sort(order.begin(), order.end(), [&](int a, int b) { //capture by reference from adj
-        if (adj[a].size() != adj[b].size())
-            return adj[a].size() > adj[b].size(); // higher degree first
-        return a < b; // tie: smaller index first
+    sort(order.begin(), order.end(), [&](int a, int b){
+        if (degree[a] != degree[b]) return degree[a] > degree[b];
+        return a < b;
     });
     return order;
 }
