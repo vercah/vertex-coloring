@@ -1,4 +1,11 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <numeric>
+#include <fstream>
+#include <random>
+#include <limits>
 #ifdef _OPENMP
   #include <omp.h>
 #endif
@@ -82,31 +89,130 @@ void write_dot(const string& path, const vector<vector<int>>& adj, const vector<
     cerr << "DOT written to: " << path << "\n";
 }
 
+// ---- Build a MIS using Luby ----
+static void build_mis_luby(const vector<vector<int>>& adj,
+                                   const vector<char>& U, //vertices allowed
+                                   vector<int>& mis)
+{
+    const int n = (int)adj.size();
+    vector<char> active(n, 0);
+    int active_cnt = 0;
+    for (int i=0; i<n; ++i){
+         if (U[i]) { active[i]=1; active_cnt++; }
+    }
+    mis.clear();
+    if (active_cnt==0) return; //done
 
+    vector<int> deg(n,0); //only active neighbors degree
+    vector<char> cand(n,0), drop(n,0), keep(n,0);
 
-// ---- Main ------
-// uses the welsh-powell algo
+    while (active_cnt > 0) {
+        // current degrees in induced subgraph
+        #pragma omp parallel for schedule(dynamic, 1024) //this loop parallel across threads
+        for (int v=0; v<n; ++v){
+            if (active[v]) {
+                int d=0;
+                for (int u: adj[v]) if (active[u]) d++;
+                deg[v]=d;
+            }
+        }
+
+        // sampling U
+        #pragma omp parallel
+        {
+            std::random_device rd;
+            std::mt19937_64 gen(rd() ^ (uint64_t)omp_get_thread_num()); //rng, so each thread has indep. randomness
+            std::uniform_real_distribution<double> dis(0.0,1.0);
+            #pragma omp for schedule(static) //parallel loop
+            for (int v=0; v<n; ++v) if (active[v]) {
+                int d = deg[v];
+                double p = (d==0) ? 1.0 : 1.0 / (2.0 * d); //cand[v] ~ Bernoulli( 1/(2*deg[v]) ), with p=1 for deg=0
+                cand[v] = dis(gen) < p ? 1 : 0; //decide which candidates based on proba
+            }
+        }
+
+        // resolve conflicts inside U
+        #pragma omp parallel for schedule(dynamic, 1024)
+        for (int v=0; v<n; ++v) if (active[v] && cand[v]) {
+            bool lose = false;
+            for (int u: adj[v]) if (active[u] && cand[u]) {
+                if (deg[v] < deg[u] || (deg[v]==deg[u] && v < u)) { lose = true; break; }
+            }
+            drop[v] = lose ? 1 : 0;
+        }
+
+        // finalize U
+        vector<int> U_kept;
+        U_kept.reserve(active_cnt); //prealocating memory for efficiency
+        for (int v=0; v<n; ++v) if (active[v] && cand[v] && !drop[v]) {
+            keep[v] = 1;
+            U_kept.push_back(v);
+            mis.push_back(v); // accumulate for MIS
+        }
+
+        // deactivate U and their neighbors
+        vector<char> next_active = active;
+        #pragma omp parallel for schedule(dynamic, 1024)
+        for (int v=0; v<n; ++v) if (keep[v]) {
+            next_active[v] = 0;
+            for (int u: adj[v]) {
+                #pragma omp atomic write //race-free, but every thread writes just zeros anyway
+                next_active[u] = 0;
+            }
+        }
+
+        int cnt=0;
+        #pragma omp parallel for reduction(+:cnt) //shared, each thread adds local partial sum
+        for (int v=0; v<n; ++v) cnt += next_active[v];
+        active.swap(next_active);
+        active_cnt = cnt;
+
+        // clear flags
+        #pragma omp parallel for schedule(static)
+        for (int v=0; v<n; ++v) { cand[v]=0; drop[v]=0; keep[v]=0; }
+    }
+}
+
+// ---- Coloring round of MIS ----
+vector<int> color_luby_parallel(const vector<vector<int>>& adj) {
+    const int n = (int)adj.size();
+    vector<int> color(n, -1);
+    vector<char> uncolored(n, 1);
+
+    int left = n, cur = 0;
+    while (left > 0) {
+        vector<int> S;
+        build_mis_luby(adj, uncolored, S);
+
+        #pragma omp parallel for schedule(static)
+        for (int i=0; i<(int)S.size(); ++i) color[S[i]] = cur;
+
+        for (int v: S) if (uncolored[v]) { uncolored[v]=0; left--; }
+        cur++;
+    }
+    return color;
+}
+
+// ---- Main ----
 int main(int argc, char** argv) {
-    string dot_path = "graph_colored.dot"; //default
-    for (int i=1; i<argc; ++i) { //arg[0] is program name
+    string dot_path = "graph_colored.dot";
+    for (int i=1; i<argc; ++i) {
         string a = argv[i];
-        if (a == "--dot" && i+1 < argc) { dot_path = argv[++i]; } //user dot filename
+        if (a == "--dot" && i+1 < argc) dot_path = argv[++i];
         else if (a == "--help" || a == "-h") {
-            cerr << "Usage: greedy [--dot out.dot] < input.col\n";
+            cerr << "Usage: parallel [--dot out.dot] < input.col\n";
             return 0;
         }
     }
 
     int n, m;
     vector<vector<int>> adj;
-    if (!read_dimacs(n, m, adj)) { cerr << "Failed to read DIMACS from input file.\n"; return 1; }
+    if (!read_dimacs(n, m, adj)) { cerr << "Failed to read DIMACS from input.\n"; return 1; }
 
-    
+    vector<int> color = color_luby_parallel(adj);
 
-    int k = 0;
-    for (int c: color) {k = max(k, c+1);}
-    cout << "Used " << k << " colors" << "\n"; // number of colors used
-
+    int k = 0; for (int c: color) k = max(k, c+1);
+    cout << "Used " << k << " colors\n";
     write_dot(dot_path, adj, color);
     return 0;
 }
