@@ -5,7 +5,7 @@ set -euo pipefail
 PROFILE_DIR="."
 BUILD_DIR="$PROFILE_DIR/../build"
 SRC="$PROFILE_DIR/../src/optim-greedy.cpp"
-BIN="$BUILD_DIR/greedy"
+BIN="$BUILD_DIR/optim-greedy"
 INPUT="$PROFILE_DIR/../data/latin_square_10.col"
 OUT_DOT="$PROFILE_DIR/../data/out.dot"
 
@@ -30,6 +30,7 @@ echo "Recompile with debug info for annotation"
 g++ -O0 -pg -g -o "$BIN" "$SRC"
 "$BIN" --dot "$OUT_DOT" < "$INPUT"
 gprof -b -A "$BIN" "$PROFILE_DIR/gmon.out" > "$PROFILE_DIR/annotated.txt"
+rm -v gmon.out
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 echo "Saved:"
