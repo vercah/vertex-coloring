@@ -1,5 +1,5 @@
-APP ?= build/greedy
-SRC ?= src/greedy.cpp
+APP ?= build/optim-greedy
+SRC ?= src/optim-greedy.cpp
 
 CXX ?= g++
 CXXFLAGS ?= -O2 -g -fno-omit-frame-pointer -Wall -Wextra
