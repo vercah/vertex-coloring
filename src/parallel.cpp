@@ -1,10 +1,7 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <algorithm>
-#include <numeric>   // for iota
-#include <fstream>   // for writing DOT
-#include <unordered_set>
+#include <bits/stdc++.h>
+#ifdef _OPENMP
+  #include <omp.h>
+#endif
 using namespace std;
 
 // ---- DIMACS reader ----
@@ -53,34 +50,6 @@ bool read_dimacs(int& n, int& m, vector<vector<int>>& adj) {
     return true;
 }
 
-// ---- Greedy coloring ------
-vector<int> greedy_color(const vector<vector<int>>& adj, const vector<int>& order) {
-    int n = (int)adj.size();
-    vector<int> color(n, -1), mark(n, -1); // n colors, initially -1; mark tracks forbidden colors
-    int stamp = 0; //timestamp to avoid clearing mark each time
-    for (int v : order) {
-        stamp++;
-        for (int u : adj[v]) { if (color[u] != -1) mark[color[u]] = stamp;}
-        int c = 0;
-        while (c < n && mark[c] == stamp) c++;
-        color[v] = c;
-    }
-    return color;
-}
-
-// sort vertices by descending degree and vertex id
-vector<int> desc_degree_order(const vector<vector<int>>& adj) {
-    int n = (int)adj.size();
-    vector<int> order(n);
-    iota(order.begin(), order.end(), 0);  // fill with 0..n-1
-    sort(order.begin(), order.end(), [&](int a, int b) { //capture by reference from adj
-        if (adj[a].size() != adj[b].size())
-            return adj[a].size() > adj[b].size(); // higher degree first
-        return a < b; // tie: smaller index first
-    });
-    return order;
-}
-
 // ---- DOT writer ------
 void write_dot(const string& path, const vector<vector<int>>& adj, const vector<int>& color) {
     static const vector<string> pal = {
@@ -113,6 +82,8 @@ void write_dot(const string& path, const vector<vector<int>>& adj, const vector<
     cerr << "DOT written to: " << path << "\n";
 }
 
+
+
 // ---- Main ------
 // uses the welsh-powell algo
 int main(int argc, char** argv) {
@@ -130,8 +101,7 @@ int main(int argc, char** argv) {
     vector<vector<int>> adj;
     if (!read_dimacs(n, m, adj)) { cerr << "Failed to read DIMACS from input file.\n"; return 1; }
 
-    vector<int> order = desc_degree_order(adj);
-    vector<int> color = greedy_color(adj, order);
+    
 
     int k = 0;
     for (int c: color) {k = max(k, c+1);}
