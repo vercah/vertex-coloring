@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
 
     int k = 0;
     for (int c: color) {k = max(k, c+1);}
-    cout << "Used " << k << " colors" << "\n"; // number of colors used
+    cout << "colors_used: " << k << "\n";
 
     write_dot(dot_path, adj, color);
     return 0;

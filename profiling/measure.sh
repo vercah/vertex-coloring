@@ -2,14 +2,14 @@
 # Time-only measurement with optional CPU pinning and stdin redirection.
 set -u
 
-BIN="${BIN:-./app}"          # binary path
+BIN="${BIN:-}"          # binary path
 ARGS="${ARGS:-}"             # program args (no redirection here)
 INPUT="${INPUT:-}"           # file to feed on stdin, e.g. INPUT=data/easy-01.col
 RUNS="${RUNS:-5}"            # repeats
 CORES="${CORES:-}"           # e.g. "3" or "0-3"; empty = no pin
 
-OUT_RUNS="${OUT_RUNS:-runs.csv}"
-OUT_SUM="${OUT_SUM:-summary.csv}"
+OUT_RUNS="${OUT_RUNS:-}"
+OUT_SUM="${OUT_SUM:-}"
 
 PIN_PREFIX=""
 if [[ -n "${CORES}" ]]; then

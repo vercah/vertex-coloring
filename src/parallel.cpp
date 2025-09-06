@@ -28,6 +28,7 @@ bool read_dimacs(int& n, int& m, vector<vector<int>>& adj) {
             cin >> kind >> n >> m;
             if (n <= 0) return false;
             adj.assign(n, {}); //reset adjacency table
+            edges.reserve(m); //prevents allocations afterwards
         } else if (t == "e") {
             int a, b;
             cin >> a >> b;
@@ -59,6 +60,8 @@ bool read_dimacs(int& n, int& m, vector<vector<int>>& adj) {
         nbr.erase(unique(nbr.begin(), nbr.end()), nbr.end()); // drop multiedges, unique moves duplicates to start
     }
     return true;
+
+    // after reading all edges
 }
 
 // ---- DOT writer ------
@@ -92,6 +95,7 @@ void write_dot(const string& path, const vector<vector<int>>& adj, const vector<
     out << "}\n";
     cerr << "DOT written to: " << path << "\n";
 }
+
 
 // ---- Build a MIS using Luby ----
 static void build_mis_luby(const vector<vector<int>>& adj,
@@ -216,7 +220,7 @@ int main(int argc, char** argv) {
     vector<int> color = color_luby_parallel(adj);
 
     int k = 0; for (int c: color) k = max(k, c+1);
-    cout << "Used " << k << " colors\n";
+    cout << "colors_used: " << k << "\n";
     write_dot(dot_path, adj, color);
     return 0;
 }
