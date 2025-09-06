@@ -20,27 +20,37 @@ if [[ -n "${CORES}" ]]; then
   fi
 fi
 
-echo "run,real_s,user_s,sys_s,peak_kb,rc" > "${OUT_RUNS}"
+echo "run,real_s,user_s,sys_s,peak_kb,rc,colors_used" > "${OUT_RUNS}"
 
 run_once() {
   local idx="$1"
   local tf_time="time_${idx}.csv"
+  local out_log="out_${idx}.log"
+  local err_log="err_${idx}.log"
   local rc=0
 
   if [[ -n "${INPUT}" ]]; then
     /usr/bin/time -f "%e,%U,%S,%M" -o "${tf_time}" \
-      ${PIN_PREFIX} "${BIN}" ${ARGS} < "${INPUT}" >/dev/null 2> "err_${idx}.log" || rc=$?
+      ${PIN_PREFIX} "${BIN}" ${ARGS} < "${INPUT}" >"${out_log}" 2> "${err_log}" || rc=$?
   else
     /usr/bin/time -f "%e,%U,%S,%M" -o "${tf_time}" \
-      ${PIN_PREFIX} "${BIN}" ${ARGS} >/dev/null 2> "err_${idx}.log" || rc=$?
+      ${PIN_PREFIX} "${BIN}" ${ARGS} >"${out_log}" 2> "${err_log}" || rc=$?
   fi
 
-  # last line has the 4 comma-separated numbers
+  # parse timings
   IFS=, read -r real user sys peak < <(tail -n1 "${tf_time}")
-  printf "%d,%.6f,%.6f,%.6f,%.0f,%d\n" "${idx}" "${real:-0}" "${user:-0}" "${sys:-0}" "${peak:-0}" "${rc}" >> "${OUT_RUNS}"
 
-  if [[ $rc -eq 0 ]]; then rm -f "err_${idx}.log"; fi
-  rm -f "${tf_time}"
+  # parse last "colors_used: K" from stdout
+  local colors=""
+  if [[ -s "${out_log}" ]]; then
+    colors="$(awk -F': *' '/colors_used:/ {v=$2} END{if (v!="") print v}' "${out_log}")"
+  fi
+
+  printf "%d,%.6f,%.6f,%.6f,%.0f,%d,%s\n" \
+    "${idx}" "${real:-0}" "${user:-0}" "${sys:-0}" "${peak:-0}" "${rc}" "${colors}" >> "${OUT_RUNS}"
+
+  [[ $rc -eq 0 ]] && rm -f "${err_log}"
+  rm -f "${tf_time}" "${out_log}"
 }
 
 for i in $(seq 1 "${RUNS}"); do run_once "${i}"; done
@@ -57,15 +67,15 @@ summarize_col() {
       return a[base] + frac*(a[base+1]-a[base])
     }
     NR==1 { next }
-    $6==0 { a[++n] = $c + 0 }   # only successful runs (rc==0)
+    ($6==0) && ($c!="") { a[++n] = $c + 0 } 
     END {
       if (n < 1) { printf("%s,na,na,na\n", name); exit }
+      # sort a[]
       for (i=1;i<=n;i++) for (j=i+1;j<=n;j++) if (a[i]>a[j]) { t=a[i]; a[i]=a[j]; a[j]=t }
       printf("%s,%.6f,%.6f,%.6f\n", name, quant(0.5), quant(0.25), quant(0.75))
     }
   ' "${OUT_RUNS}"
 }
-
 
 {
   echo "metric,median,p25,p75"
@@ -73,6 +83,7 @@ summarize_col() {
   summarize_col 3 user_s
   summarize_col 4 sys_s
   summarize_col 5 peak_kb
+  summarize_col 7 colors_used
 } > "${OUT_SUM}"
 
 echo "Done. Files: ${OUT_RUNS}, ${OUT_SUM}"

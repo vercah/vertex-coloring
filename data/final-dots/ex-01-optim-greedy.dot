@@ -1,0 +1,26 @@
+graph G {
+  layout=neato;
+  overlap=false;
+  splines=true;
+  node [shape=circle, style=filled, fontname=Inter];
+  1 [label="1", fillcolor="green", tooltip="v1 color 1"];
+  2 [label="2", fillcolor="red", tooltip="v2 color 0"];
+  3 [label="3", fillcolor="green", tooltip="v3 color 1"];
+  4 [label="4", fillcolor="green", tooltip="v4 color 1"];
+  5 [label="5", fillcolor="red", tooltip="v5 color 0"];
+  6 [label="6", fillcolor="green", tooltip="v6 color 1"];
+  7 [label="7", fillcolor="green", tooltip="v7 color 1"];
+  8 [label="8", fillcolor="red", tooltip="v8 color 0"];
+  9 [label="9", fillcolor="red", tooltip="v9 color 0"];
+  10 [label="10", fillcolor="green", tooltip="v10 color 1"];
+  1 -- 2;
+  1 -- 5;
+  2 -- 3;
+  2 -- 7;
+  3 -- 8;
+  4 -- 9;
+  5 -- 10;
+  6 -- 9;
+  7 -- 9;
+  8 -- 10;
+}
