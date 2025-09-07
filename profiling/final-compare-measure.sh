@@ -44,6 +44,8 @@ run_part() {
     #  OUT_RUNS="results/${BASE}-greedy-runs.csv" OUT_SUM="results/${BASE}-greedy-summary.csv" \
     #  ./measure.sh
   done
+  echo "----- Done computing, start merging -----"
+
 }
 
 merge_part() {
@@ -75,7 +77,7 @@ merge_part() {
     printf "%s,%s,%s,%s,%s,%s,%s\n" \
       "$graph" "$par_t" "$og_t" "$par_c" "$og_c" "$speedup" "$eff" >> "$OUT"
   done
-  echo "Done, wrote $OUT"
+  echo "Done merging, wrote $OUT"
 }
 
 case "$mode" in
