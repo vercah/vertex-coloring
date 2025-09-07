@@ -54,7 +54,6 @@ run_once() {
     colors="$(awk -F': *' '/colors_used:/ {v=$2} END{if (v!="") print v}' "${out_log}")"
   fi
 
-<<<<<<< HEAD
   if [[ "${REPEAT}" -gt 1 ]]; then
     real=$(awk -v x="$real" -v r="$REPEAT" 'BEGIN{printf "%.6f", x/r}')
     user=$(awk -v x="$user" -v r="$REPEAT" 'BEGIN{printf "%.6f", x/r}')
@@ -62,10 +61,6 @@ run_once() {
   fi
 
 printf "%d,%.6f,%.6f,%.6f,%.0f,%d\n" "${idx}" "${real:-0}" "${user:-0}" "${sys:-0}" "${peak:-0}" "${rc}" >> "${OUT_RUNS}"
-=======
-  printf "%d,%.6f,%.6f,%11f,%.0f,%d,%s\n" \
-    "${idx}" "${real:-0}" "${user:-0}" "${sys:-0}" "${peak:-0}" "${rc}" "${colors}" >> "${OUT_RUNS}"
->>>>>>> 31c91c8a87971b86371199d727ff9aa1781fe337
 
   [[ $rc -eq 0 ]] && rm -f "${err_log}"
   rm -f "${tf_time}" "${out_log}"
