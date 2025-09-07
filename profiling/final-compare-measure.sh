@@ -27,19 +27,23 @@ run_part() {
     BASE="$(basename "${COL%.col}")"
 
     # parallel
-    BIN="$PARALLEL" INPUT="$COL" ARGS="--dot ${OUTPUT_DIR}/${BASE}-parallel.dot" CORES="$CORES" \
-      REPEAT="$REPEAT" OUT_RUNS="results/${BASE}-parallel-runs.csv" OUT_SUM="results/${BASE}-parallel-summary.csv" \
-      ./measure.sh
+    BIN="$PARALLEL" INPUT="$COL" \
+    ARGS_FUNC="--dot ${OUTPUT_DIR}/${BASE}-parallel.dot" \
+    ARGS_TIME="" \
+    CORES="$CORES" REPEAT="$REPEAT" \
+    OUT_RUNS="results/${BASE}-parallel-runs.csv" \
+    OUT_SUM="results/${BASE}-parallel-summary.csv" \
+    ./measure.sh
 
     # optim-greedy
-    BIN="$OPTIM" INPUT="$COL" ARGS="--dot ${OUTPUT_DIR}/${BASE}-optim-greedy.dot" CORES="$CORES" \
-      REPEAT="$REPEAT" OUT_RUNS="results/${BASE}-optim-greedy-runs.csv" OUT_SUM="results/${BASE}-optim-greedy-summary.csv" \
-      ./measure.sh
-
-    # greedy (keep disabled if not needed)
-    # BIN="$GREEDY" INPUT="$COL" ARGS="--dot ${OUTPUT_DIR}/${BASE}-greedy.dot" CORES="$CORES" \
-    #   REPEAT="$REPEAT" OUT_RUNS="results/${BASE}-greedy-runs.csv" OUT_SUM="results/${BASE}-greedy-summary.csv" \
-    #   ./measure.sh
+    BIN="$PARALLEL" INPUT="$COL" \
+    ARGS_FUNC="--dot ${OUTPUT_DIR}/${BASE}-sequential.dot" \
+    ARGS_TIME="" \
+    CORES="$CORES" REPEAT="$REPEAT" \
+    OUT_RUNS="results/${BASE}-optim-runs.csv" \
+    OUT_SUM="results/${BASE}-optim-summary.csv" \
+    ./measure.sh
+    
   done
   echo "----- Done computing, start merging -----"
 }

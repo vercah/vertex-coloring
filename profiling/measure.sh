@@ -3,7 +3,10 @@
 set -euo pipefail
 
 BIN="${BIN:-}"                 # required: binary path
-ARGS="${ARGS:-}"               # program args
+ARGS="${ARGS:-}"
+ARGS_FUNC="${ARGS_FUNC:-$ARGS}"   # used once, not timed, to obtain results
+ARGS_TIME="${ARGS_TIME:-$ARGS}"   # used inside the timed loop
+
 INPUT="${INPUT:-}"             # file to feed on stdin
 CORES="${CORES:-}"             # e.g. "0-15"; empty = no pin
 
@@ -30,11 +33,8 @@ run_once() {
   local rc=0
 
   # One functional run to capture colors (not timed)
-  if [[ -n "${INPUT}" ]]; then
-    ${PIN_PREFIX} "${BIN}" ${ARGS} < "${INPUT}" >"${out_log}" 2>/dev/null || true
-  else
-    ${PIN_PREFIX} "${BIN}" ${ARGS} >"${out_log}" 2>/dev/null || true
-  fi
+  ${PIN_PREFIX} "${BIN}" ${ARGS_FUNC} < "${INPUT}" > "${out_log}" 2>/dev/null || true
+
   # Parse "colors_used: K"
   local colors=""
   if [[ -s "${out_log}" ]]; then
@@ -45,11 +45,11 @@ run_once() {
   run_cmd() {
     if [[ -n "${INPUT}" ]]; then
       for _i in $(seq 1 "${REPEAT}"); do
-        ${PIN_PREFIX} "${BIN}" ${ARGS} < "${INPUT}" >/dev/null || return 1
+        ${PIN_PREFIX} "${BIN}" ${ARGS_TIME} < "${INPUT}" >/dev/null || return 1
       done
     else
       for _i in $(seq 1 "${REPEAT}"); do
-        ${PIN_PREFIX} "${BIN}" ${ARGS} >/dev/null || return 1
+        ${PIN_PREFIX} "${BIN}" ${ARGS_TIME} >/dev/null || return 1
       done
     fi
   }
