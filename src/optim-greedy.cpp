@@ -126,10 +126,9 @@ void write_dot(const string& path, const vector<vector<int>>& adj, const vector<
 // ---- Main ------
 // uses the welsh-powell algo
 int main(int argc, char** argv) {
-    string dot_path = "graph_colored.dot"; //default
+    string dot_path; 
     for (int i=1; i<argc; ++i) { //arg[0] is program name
-        string a = argv[i];
-        if (a == "--dot" && i+1 < argc) { dot_path = argv[++i]; } //user dot filename
+        if (a == "--dot" && i + 1 < argc) { dot_path = argv[++i]; }
         else if (a == "--help" || a == "-h") {
             cerr << "Usage: greedy [--dot out.dot] < input.col\n";
             return 0;
@@ -147,6 +146,8 @@ int main(int argc, char** argv) {
     for (int c: color) {k = max(k, c+1);}
     cout << "colors_used: " << k << "\n";
 
-    write_dot(dot_path, adj, color);
+    if (!dot_path.empty()) {
+        write_dot(dot_path, adj, color);
+    }
     return 0;
 }

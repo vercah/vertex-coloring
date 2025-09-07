@@ -203,12 +203,11 @@ vector<int> color_luby_parallel(const vector<vector<int>>& adj) {
 
 // ---- Main ----
 int main(int argc, char** argv) {
-    string dot_path = "graph_colored.dot";
-    for (int i=1; i<argc; ++i) {
-        string a = argv[i];
-        if (a == "--dot" && i+1 < argc) dot_path = argv[++i];
+    string dot_path; 
+    for (int i=1; i<argc; ++i) { //arg[0] is program name
+        if (a == "--dot" && i + 1 < argc) { dot_path = argv[++i]; }
         else if (a == "--help" || a == "-h") {
-            cerr << "Usage: parallel [--dot out.dot] < input.col\n";
+            cerr << "Usage: greedy [--dot out.dot] < input.col\n";
             return 0;
         }
     }
