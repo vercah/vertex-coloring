@@ -18,5 +18,4 @@ export OMP_PLACES=cores
 export OMP_DYNAMIC=false
 
 
-./final-compare-measure.sh all
 P=16 REPEAT=200 CORES="0-15" ./final-compare-measure.sh all

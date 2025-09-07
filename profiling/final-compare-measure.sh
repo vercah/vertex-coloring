@@ -18,9 +18,9 @@ REPEAT="${REPEAT:-100}"      # iterations inside timed run
 run_part() {
   mkdir -p ../build "$RESULTS_DIR" "$OUTPUT_DIR"
 
-  g++ -O3 -march=native -fopenmp ../src/parallel.cpp -o "$PARALLEL"
-  g++ -O3 -march=native ../src/optim-greedy.cpp -o "$OPTIM"
-  g++ -O3 -march=native ../src/greedy.cpp -o "$GREEDY"
+  g++ -O3 -fopenmp ../src/parallel.cpp -o "$PARALLEL"
+  g++ -O3 ../src/optim-greedy.cpp -o "$OPTIM"
+  g++ -O3 ../src/greedy.cpp -o "$GREEDY"
 
   for COL in "$GRAPHS_DIR"/*.col; do
     [ -e "$COL" ] || continue
@@ -66,7 +66,7 @@ merge_part() {
       eff=""
     else
       speedup="$(awk -v a="$og_t" -v b="$par_t" 'BEGIN{ if(b==0){print ""} else {printf "%.6f", (a+0)/(b+0)} }')"
-      eff="$(awk -v s="$speedup" -v c="${CORES:-0}" 'BEGIN{ if(c==0||s==""){print ""} else {printf "%.6f", (s+0)/(c+0)} }')"
+      eff="$(awk -v s="$speedup" -v p="${P:-0}" 'BEGIN{if(p=="" || p+0==0 || s==""){print ""} else {printf "%.6f", (s+0)/(p+0)} }')"
     fi
 
     printf "%s,%s,%s,%s,%s,%s,%s\n" \
