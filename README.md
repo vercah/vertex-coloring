@@ -5,7 +5,6 @@ The task is to assign colors to vertices of a graph so that no two adjacent vert
 
 The input graphs are provided in the `/data` folder in `.col` format, and were collected from the following sites:
 - https://mat.tepper.cmu.edu/COLOR/instances.html
-- https://networkrepository.com/dimacs.php
 
 The output is expected in the `.dot` format to enable Graphviz visualization.
 
@@ -28,4 +27,4 @@ OpenMP was used for parallelization.
 ## 6. Comparison of Results and Measurement of Speedup and Efficiency
 I compared the parallel and optimized sequential algorithms in runtime and number of colors used. The results are stored in `profiling/final.csv`.
 
-The `profiling/final-compare-measure.sh` script runs both (optimalized) greedy and parallelized program on all `.col` graphs in the `data` folder 10 times (by default). It measures wall-clock, user and system time of each execution, then computes the median of those per input, together with the number of colors used. It produces a summary `.csv` file for each graph and algorithm. Then it uses mainly `awk` to merge these files and compute the speedup and parallel algorithm efficiency from the median of wall-clock time.
+The `profiling/final-compare-measure.sh` script runs both (optimalized) greedy and parallelized program on all `.col` graphs in the `data` folder 100 times (by default), measures the whole time and then normalizes by the number of repeats. It measures wall-clock, user and system time of each execution, together with the number of colors used. It produces a summary `.csv` file for each graph and algorithm. Then it uses `awk` to merge these files and compute the speedup and parallel algorithm efficiency from the median of wall-clock time.
