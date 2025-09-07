@@ -46,7 +46,7 @@ run_once() {
     colors="$(awk -F': *' '/colors_used:/ {v=$2} END{if (v!="") print v}' "${out_log}")"
   fi
 
-  printf "%d,%.3f,%.3f,%.3f,%.0f,%d,%s\n" \
+  printf "%d,%.6f,%.6f,%11f,%.0f,%d,%s\n" \
     "${idx}" "${real:-0}" "${user:-0}" "${sys:-0}" "${peak:-0}" "${rc}" "${colors}" >> "${OUT_RUNS}"
 
   [[ $rc -eq 0 ]] && rm -f "${err_log}"
@@ -72,7 +72,7 @@ summarize_col() {
       if (n < 1) { printf("%s,na,na,na\n", name); exit }
       # sort a[]
       for (i=1;i<=n;i++) for (j=i+1;j<=n;j++) if (a[i]>a[j]) { t=a[i]; a[i]=a[j]; a[j]=t }
-      printf("%s,%.3f,%.3f,%.3f\n", name, quant(0.5), quant(0.25), quant(0.75))
+      printf("%s,%.6f,%.6f,%.6f\n", name, quant(0.5), quant(0.25), quant(0.75))
     }
   ' "${OUT_RUNS}"
 }

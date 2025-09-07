@@ -14,7 +14,7 @@ OPTIM=../build/optim-greedy
 GREEDY=../build/greedy
 
 INPUT=../data/latin_square_10.col
-CORES=4
+CORES=16
 RUNS=10
 
 
@@ -70,8 +70,8 @@ merge_part() {
       speedup=""
       eff=""
     else
-      speedup="$(awk -v a="$og_t" -v b="$par_t" 'BEGIN{ if(b==0){print ""} else {printf "%.3f", a/b} }')"
-      eff="$(awk -v s="$speedup" -v c="$CORES" 'BEGIN{ if(c==0||s==""){print ""} else {printf "%.3f", s/c} }')"
+      speedup="$(awk -v a="$og_t" -v b="$par_t" 'BEGIN{ if(b==0){print ""} else {printf "%.6f", a/b} }')"
+      eff="$(awk -v s="$speedup" -v c="$CORES" 'BEGIN{ if(c==0||s==""){print ""} else {printf "%.6f", s/c} }')"
     fi
 
     printf "%s,%s,%s,%s,%s,%s,%s\n" \
