@@ -57,7 +57,7 @@ merge_part() {
   for p_sum in "$RESULTS_DIR"/*-parallel-summary.csv; do
     base="${p_sum%-parallel-summary.csv}"
     graph="$(basename "$base")"
-    og_sum="${base}-optim-greedy-summary.csv"
+    og_sum="${base}-optim-summary.csv"
     [[ -f "$og_sum" ]] || continue
 
     par_t="$(metric_median "$p_sum" real_s)"
