@@ -14,8 +14,9 @@ OPTIM=../build/optim-greedy
 GREEDY=../build/greedy
 
 INPUT=../data/latin_square_10.col
-CORES=4
-RUNS=10
+CORES="${CORES:-}"   # empty = no pin
+RUNS="${RUNS:-10}"
+REPEAT="${REPEAT:-100}" #repeats within run
 
 
 run_part() {

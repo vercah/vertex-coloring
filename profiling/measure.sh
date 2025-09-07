@@ -10,6 +10,7 @@ CORES="${CORES:-}"           # e.g. "3" or "0-3"; empty = no pin
 
 OUT_RUNS="${OUT_RUNS:-}"
 OUT_SUM="${OUT_SUM:-}"
+REPEAT="${REPEAT:-100}"
 
 PIN_PREFIX=""
 if [[ -n "${CORES}" ]]; then
@@ -29,13 +30,20 @@ run_once() {
   local err_log="err_${idx}.log"
   local rc=0
 
-  if [[ -n "${INPUT}" ]]; then
-    /usr/bin/time -f "%e,%U,%S,%M" -o "${tf_time}" \
-      ${PIN_PREFIX} "${BIN}" ${ARGS} < "${INPUT}" >"${out_log}" 2> "${err_log}" || rc=$?
-  else
-    /usr/bin/time -f "%e,%U,%S,%M" -o "${tf_time}" \
-      ${PIN_PREFIX} "${BIN}" ${ARGS} >"${out_log}" 2> "${err_log}" || rc=$?
-  fi
+  run_cmd() {
+    if [[ -n "${INPUT}" ]]; then
+      for _i in $(seq 1 "${REPEAT}"); do
+        ${PIN_PREFIX} "${BIN}" ${ARGS} < "${INPUT}" >/dev/null || return 1
+      done
+    else
+      for _i in $(seq 1 "${REPEAT}"); do
+        ${PIN_PREFIX} "${BIN}" ${ARGS} >/dev/null || return 1
+      done
+    fi
+  }
+
+  #  time the whole loop once
+  /usr/bin/time -f "%e,%U,%S,%M" -o "${tf_time}" bash -c run_cmd 2> "err_${idx}.log" || rc=$?
 
   # parse timings
   IFS=, read -r real user sys peak < <(tail -n1 "${tf_time}")
@@ -46,8 +54,13 @@ run_once() {
     colors="$(awk -F': *' '/colors_used:/ {v=$2} END{if (v!="") print v}' "${out_log}")"
   fi
 
-  printf "%d,%.3f,%.3f,%.3f,%.0f,%d,%s\n" \
-    "${idx}" "${real:-0}" "${user:-0}" "${sys:-0}" "${peak:-0}" "${rc}" "${colors}" >> "${OUT_RUNS}"
+  if [[ "${REPEAT}" -gt 1 ]]; then
+    real=$(awk -v x="$real" -v r="$REPEAT" 'BEGIN{printf "%.6f", x/r}')
+    user=$(awk -v x="$user" -v r="$REPEAT" 'BEGIN{printf "%.6f", x/r}')
+    sys=$(awk -v x="$sys" -v r="$REPEAT" 'BEGIN{printf "%.6f", x/r}')
+  fi
+
+printf "%d,%.6f,%.6f,%.6f,%.0f,%d\n" "${idx}" "${real:-0}" "${user:-0}" "${sys:-0}" "${peak:-0}" "${rc}" >> "${OUT_RUNS}"
 
   [[ $rc -eq 0 ]] && rm -f "${err_log}"
   rm -f "${tf_time}" "${out_log}"
