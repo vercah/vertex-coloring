@@ -86,4 +86,4 @@ summarize_col() {
   summarize_col 7 colors_used
 } > "${OUT_SUM}"
 
-echo "Done. Files: ${OUT_RUNS}, ${OUT_SUM}"
+echo "Finished files ${OUT_RUNS}, ${OUT_SUM}"
