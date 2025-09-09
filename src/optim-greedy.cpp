@@ -41,17 +41,17 @@ bool read_dimacs(int& n, int& m, vector<vector<int>>& adj) {
 
     // building adjacency, deduplication of multiedges
     vector<int> deg(n, 0);
-    for (auto &e : edges) { deg[e.first]++; deg[e.second]++; }
+    for (pair<int,int> &e : edges) { deg[e.first]++; deg[e.second]++; }
 
     adj.assign(n, {});
     for (int i = 0; i < n; ++i) adj[i].reserve(deg[i]);
 
-    for (auto &e : edges) {
+    for (pair<int,int> &e : edges) {
         adj[e.first].push_back(e.second);
         adj[e.second].push_back(e.first);
     }
     for (int i = 0; i < n; ++i) {
-        auto &nbr = adj[i];
+        vector<int> &nbr = adj[i];
         sort(nbr.begin(), nbr.end()); //sort neighbors so duplicates become adjacent
         nbr.erase(unique(nbr.begin(), nbr.end()), nbr.end()); // drop multiedges, unique moves duplicates to start
     }

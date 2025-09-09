@@ -45,17 +45,17 @@ bool read_dimacs(int& n, int& m, vector<vector<int>>& adj) {
 
     // building adjacency, deduplication of multiedges
     vector<int> deg(n, 0);
-    for (auto &e : edges) { deg[e.first]++; deg[e.second]++; }
+    for (pair<int,int> &e : edges) { deg[e.first]++; deg[e.second]++; }
 
     adj.assign(n, {});
     for (int i = 0; i < n; ++i) adj[i].reserve(deg[i]);
 
-    for (auto &e : edges) {
+    for (pair<int,int> &e : edges) {
         adj[e.first].push_back(e.second);
         adj[e.second].push_back(e.first);
     }
     for (int i = 0; i < n; ++i) {
-        auto &nbr = adj[i];
+        vector<int> &nbr = adj[i];
         sort(nbr.begin(), nbr.end()); //sort neighbors so duplicates become adjacent
         nbr.erase(unique(nbr.begin(), nbr.end()), nbr.end()); // drop multiedges, unique moves duplicates to start
     }
@@ -116,7 +116,7 @@ static void build_mis_luby(const vector<vector<int>>& adj,
 
     while (active_cnt > 0) {
         // current degrees in induced subgraph
-        #pragma omp parallel for schedule(dynamic, 1024) //this loop parallel across threads
+        #pragma omp parallel for schedule(dynamic, 1024) //parallel across threads
         for (int v=0; v<n; ++v){
             if (active[v]) {
                 int d=0;
@@ -131,7 +131,7 @@ static void build_mis_luby(const vector<vector<int>>& adj,
             std::random_device rd;
             std::mt19937_64 gen(rd() ^ (uint64_t)omp_get_thread_num()); //rng, so each thread has indep. randomness
             std::uniform_real_distribution<double> dis(0.0,1.0);
-            #pragma omp for schedule(static) //parallel loop
+            #pragma omp for schedule(static)
             for (int v=0; v<n; ++v) if (active[v]) {
                 int d = deg[v];
                 double p = (d==0) ? 1.0 : 1.0 / (2.0 * d); //cand[v] ~ Bernoulli( 1/(2*deg[v]) ), with p=1 for deg=0
@@ -151,7 +151,7 @@ static void build_mis_luby(const vector<vector<int>>& adj,
 
         // finalize U
         vector<int> U_kept;
-        U_kept.reserve(active_cnt); //prealocating memory for efficiency
+        U_kept.reserve(active_cnt); 
         for (int v=0; v<n; ++v) if (active[v] && cand[v] && !drop[v]) {
             keep[v] = 1;
             U_kept.push_back(v);
