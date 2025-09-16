@@ -36,7 +36,7 @@ run_part() {
     ./measure.sh
 
     # optim-greedy
-    BIN="$PARALLEL" INPUT="$COL" \
+    BIN="$OPTIM" INPUT="$COL" \
     ARGS_FUNC="--dot ${OUTPUT_DIR}/${BASE}-sequential.dot" \
     ARGS_TIME="" \
     CORES="$CORES" REPEAT="$REPEAT" \
