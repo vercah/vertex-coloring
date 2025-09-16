@@ -116,7 +116,7 @@ static void build_mis_luby(const vector<vector<int>>& adj,
 
     while (active_cnt > 0) {
         // current degrees in induced subgraph
-        #pragma omp parallel for schedule(dynamic, 1024) //parallel across threads
+        #pragma omp parallel for schedule(static) //parallel across threads
         for (int v=0; v<n; ++v){
             if (active[v]) {
                 int d=0;
