@@ -35,10 +35,12 @@ run_once() {
   # One functional run to capture colors (not timed)
   ${PIN_PREFIX} "${BIN}" ${ARGS_FUNC} < "${INPUT}" > "${out_log}" 2>/dev/null || true
 
-  # Parse "colors_used: K"
+  # Parse "colors_used: K" (robust, CRLF-safe)
   local colors=""
   if [[ -s "${out_log}" ]]; then
-    colors="$(awk -F': *' '/^colors_used:/{v=$2} END{if (v!="") print v}' "${out_log}")"
+    colors="$(tr -d '\r' < "${out_log}" \
+              | sed -n 's/^colors_used:[[:space:]]*\([0-9][0-9]*\).*/\1/p' \
+              | tail -n1)"
   fi
 
   # Define the REPEAT loop
@@ -72,7 +74,7 @@ run_once() {
     "${idx}" "${real:-0}" "${user:-0}" "${sys:-0}" "${peak:-0}" "${rc}" "${colors:-}" >> "${OUT_RUNS}"
 
   [[ $rc -eq 0 ]] && rm -f "${err_log}"
-  rm -f "${tf_time}" "${out_log}"
+   rm -f "${tf_time}" "${out_log}"
 }
 
 run_once

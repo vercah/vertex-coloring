@@ -12,7 +12,7 @@ PARALLEL=../build/parallel
 OPTIM=../build/optim-greedy
 GREEDY=../build/greedy
 
-CORES="${CORES:-}"           # empty = no pin
+CORES="${CORES:-0-7}"           # empty = no pin
 REPEAT="${REPEAT:-100}"      # iterations inside timed run
 
 run_part() {
@@ -36,7 +36,7 @@ run_part() {
     ./measure.sh
 
     # optim-greedy
-    BIN="$PARALLEL" INPUT="$COL" \
+    BIN="$OPTIM" INPUT="$COL" \
     ARGS_FUNC="--dot ${OUTPUT_DIR}/${BASE}-sequential.dot" \
     ARGS_TIME="" \
     CORES="$CORES" REPEAT="$REPEAT" \
@@ -70,7 +70,7 @@ merge_part() {
       eff=""
     else
       speedup="$(awk -v a="$og_t" -v b="$par_t" 'BEGIN{ if(b==0){print ""} else {printf "%.6f", (a+0)/(b+0)} }')"
-      eff="$(awk -v s="$speedup" -v p="${P:-0}" 'BEGIN{if(p=="" || p+0==0 || s==""){print ""} else {printf "%.6f", (s+0)/(p+0)} }')"
+      eff="$(awk -v s="$speedup" -v p=8 'BEGIN{if(p=="" || p+0==0 || s==""){print ""} else {printf "%.6f", (s+0)/(p+0)} }')"
     fi
 
     printf "%s,%s,%s,%s,%s,%s,%s\n" \

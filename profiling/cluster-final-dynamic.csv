@@ -1,4 +1,4 @@
-graph,parallel_real_s_median,optim_greedy_real_s_median,parallel_colors_used,optim_greedy_colors_used,speedup,parallel_efficiency
+graph,parallel_real_s_mean,optim_greedy_real_s_mean,parallel_colors_used,optim_greedy_colors_used,speedup,parallel_efficiency
 DSJC125.1,0.005550,0.005450,8.000000,8.000000,0.981982,0.061374
 DSJC125.5,0.010600,0.010550,25.000000,28.000000,0.995283,0.062205
 DSJC125.9,0.016000,0.015750,57.000000,55.000000,0.984375,0.061523
