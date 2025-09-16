@@ -12,10 +12,10 @@ module purge
 module load gcc   
 
 # OpenMP runtime
-export OMP_NUM_THREADS=16
-export OMP_PROC_BIND=close
+export OMP_NUM_THREADS=32
+export OMP_PROC_BIND=TRUE
 export OMP_PLACES=cores
 export OMP_DYNAMIC=false
 
 
-P=16 REPEAT=200 CORES="0-15" ./final-compare-measure.sh all
+P=32 REPEAT=300 CORES="0-15" ./final-compare-measure.sh all
