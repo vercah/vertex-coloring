@@ -1,0 +1,3 @@
+pridat mereni casu samotneho vypoctu pred a po optimalizaci
+
+paralelni zkusit se statickym MIS

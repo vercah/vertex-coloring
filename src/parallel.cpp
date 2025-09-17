@@ -11,6 +11,7 @@
 #endif
 using namespace std;
 
+
 // ---- DIMACS reader ----
 bool read_dimacs(int& n, int& m, vector<vector<int>>& adj) {
     ios::sync_with_stdio(false); //disconnects c++ from c (scanf, printf), to make it faster
